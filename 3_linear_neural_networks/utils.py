@@ -3,6 +3,7 @@ import collections
 import matplotlib.pyplot as plt
 from IPython import display as ipy_display
 import numpy as np
+import os
 
 def add_to_class(Class): #@save
     """
@@ -47,7 +48,7 @@ class ProgressBoard(HyperParameters):  # @save
         self.display = display
         self.data = {}
 
-    def draw(self, x, y, label, every_n=1):
+    def draw(self, x, y, label, every_n=1, draw_online=True, img_path=None):
         """Draw data points in real-time animation."""
         if label not in self.data:
             # Initialize a new line with specified line style and color
@@ -89,3 +90,7 @@ class ProgressBoard(HyperParameters):  # @save
             if self.display:
                 ipy_display.clear_output(wait=True)
                 ipy_display.display(self.fig)
+
+            if img_path != None:
+                os.makedirs(os.path.dirname(img_path), exist_ok=True)
+                self.fig.savefig(img_path)

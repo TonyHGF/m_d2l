@@ -7,8 +7,10 @@ class Trainer(HyperParameters):
     """
     The base class for training models with data.
     """
-    def __init__(self, max_epochs, num_gpus=0, gradient_clip_val=0):
+    def __init__(self, max_epochs, num_gpus=0, gradient_clip_val=0, draw_online=True, img_path=None):
         self.save_hyperparameters()
+        self.draw_online = draw_online
+        self.img_path = img_path
     
     def prepare_data(self, data):
         self.train_dataloader = data.train_dataloader()
@@ -32,9 +34,6 @@ class Trainer(HyperParameters):
         for self.epoch in range(self.max_epochs):
             self.fit_epoch()
 
-    def fit_epoch(self):
-        raise NotImplementedError
-
     def prepare_batch(self, batch):
         return batch
     
@@ -42,7 +41,7 @@ class Trainer(HyperParameters):
         self.model.train()
 
         for batch in self.train_dataloader:
-            loss = self.model.training_step(self.prepare_batch(batch))
+            loss = self.model.training_step(self.prepare_batch(batch), self.draw_online, self.img_path)
             self.optim.zero_grad()
             with torch.no_grad():
                 loss.backward()
@@ -58,5 +57,5 @@ class Trainer(HyperParameters):
 
         for batch in self.val_dataloader:
             with torch.no_grad():
-                self.model.validation_step(self.prepare_batch(batch))
+                self.model.validation_step(self.prepare_batch(batch), self.draw_online, self.img_path)
             self.val_batch_idx += 1
